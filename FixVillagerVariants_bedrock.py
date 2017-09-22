@@ -23,14 +23,14 @@ VERSION = 1.0
 
 inputs =(("Fix Villager Variants for Bedrock", "label"),
 		("Component Group Mappings CSV", "label"),
-		("(componentGroup:variant)",("string", "width=350"))
+		("(componentGroup;variant)",("string", "width=350"))
 		)
 def perform(level, box, options):
-	cgCSV = options["(componentGroup:variant)"]
+	cgCSV = options["(componentGroup;variant)"]
 	allowedCG = string.split(cgCSV,",")
 	mapping = []
 	for item in allowedCG:
-		items = string.split(item,":")
+		items = string.split(item,";")
 		mapping.append(items)
 	print(mapping)
 	for (chunk, slices, point) in level.getChunkSlices(box):
