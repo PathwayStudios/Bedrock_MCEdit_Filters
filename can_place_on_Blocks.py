@@ -14,11 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# ORIGINAL VERISION BY:
-# Feel free to modify and use this filter however you wish. If you do,
-# please give credit to SethBling.
-# http://youtube.com/SethBling
-
 from pymclevel import TAG_Compound, TAG_Int, TAG_Short, TAG_Byte, TAG_String, TAG_Float, TAG_List, TileEntity, id_definitions, leveldb, leveldbpocket
 from collections import Counter
 import string
