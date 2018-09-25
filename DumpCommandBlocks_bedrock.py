@@ -16,9 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # ORIGINAL VERISION BY:
-# Feel free to modify and use this filter however you wish. If you do,
-# please give credit to SethBling.
-# http://youtube.com/SethBling
+# TexelElf: http://elemanser.com/filters.html
 
 
 from pymclevel import TAG_Byte, TAG_Int, TAG_Compound, TAG_String
@@ -269,6 +267,9 @@ def perform(level, box, options):
 				cmd["conditionMet"] = TAG_Byte(conditionMet)
 				cmd["CustomName"] = TAG_String(name)
 				cmd["Command"] = TAG_String(command)
-				chunk.TileEntities.remove(cmd)
+				try:
+					chunk.TileEntities.remove(cmd)
+				except ValueError:
+					print ("missing command block at "+str(cx)+","+str(cy)+","+str(cz))
 				chunk.TileEntities.append(cmd)
 				chunk.dirty = True

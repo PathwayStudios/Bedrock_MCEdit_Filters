@@ -38,6 +38,23 @@ try:
 
 except url.URLError as e:
 	print "Error getting associations file: " +str(e.reason)
+
+if ("version" in idMappingsRemote): 
+	if ("version" in idMappings):
+		if idMappingsRemote["version"] > idMappings["version"]:
+			with open("pe-item-associations.json", "w") as text_file:
+				json.dump(idMappingsRemote, text_file, ensure_ascii=False)
+			idMappings = idMappingsRemote
+			associations = 1
+			upgradeAssocations = 1
+			print("Updated associations file to version "+idMappings["version"])
+	else:
+		with open("pe-item-associations.json", "w") as text_file:
+			json.dump(idMappingsRemote, text_file)	
+		idMappings = idMappingsRemote
+		associations = 1
+		upgradeAssocations = 1
+		print("Updated associations file to version "+idMappings["version"])
 	
 inputs = (
 	("Generate chest of blocks from selection with can_place_on tag", "label"),

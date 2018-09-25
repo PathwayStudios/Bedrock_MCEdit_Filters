@@ -85,7 +85,9 @@ inputs = [(("Trade", "title"),
 		("Custom Component Groups", ("string", "width=250")),
 		("Reward XP", 1),	
 		("Profession", ProfessionKeys),
-		("Stop Trade Upgrade", True),
+		("Use Profession for Variant Only", False),
+		("Disable Trades (warning only use if you know what you are doing)", False),
+		("Stop Trade Upgrade", True),		
 		("Max Health", True),		
 		("Unlimited Trades", True),),
 	
@@ -116,6 +118,8 @@ displayName = "Bedrock - Create Shops"
 
 def perform(level, box, options):
 	rewardXP = options["Reward XP"]
+	variantOnly = options["Use Profession for Variant Only"]
+	disableTrades = options["Disable Trades (warning only use if you know what you are doing)"]
 	stopTrade = options["Stop Trade Upgrade"]
 	unlimited = options["Unlimited Trades"]
 	maxHealth = options["Max Health"]	
@@ -141,10 +145,10 @@ def perform(level, box, options):
 				professionGUI = professionsLookup[Professions[options["Profession"]]]
 				dontConvert = 0
 			if dontConvert == 0:
-				createShop(level, x, y, z, stopTrade, variant, unlimited, customName, customNameVisible, maxHealth, professionGUI, rewardXP, componentGroups)
+				createShop(level, x, y, z, stopTrade, variant, unlimited, customName, customNameVisible, maxHealth, professionGUI, rewardXP, componentGroups, variantOnly, disableTrades)
 			else:
 				print("what?")
-def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, customNameVisible, maxHealth, professionGUI, rewardXP, componentGroups):
+def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, customNameVisible, maxHealth, professionGUI, rewardXP, componentGroups, variantOnly, disableTrades):
 	chest = level.tileEntityAt(x, y, z)
 	if chest == None:
 		return
@@ -154,19 +158,19 @@ def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, custom
 	saleList = {}
 
 	for item in chest["Items"]:
-		slot = item["Slot"].value
+		slot = int(item["Slot"].value)
 		if slot >= 0 and slot <= 8:
 			priceList[slot] = item
 			del priceList[slot]["Slot"]
-			priceList[slot]["id"] = TAG_Short(int(priceList[slot]["id"].value))
+			priceList[slot]["Name"] = TAG_String(priceList[slot]["Name"].value)
 		elif slot >= 9 and slot <= 17:
 			priceListB[slot-9] = item
 			del priceListB[slot-9]["Slot"]
-			priceListB[slot-9]["id"] = TAG_Short(int(priceListB[slot-9]["id"].value))			
+			priceListB[slot-9]["Name"] = TAG_String(priceListB[slot-9]["Name"].value)			
 		elif slot >= 18 and slot <= 26:
 			saleList[slot-18] = item
 			del saleList[slot-18]["Slot"]
-			saleList[slot-18]["id"] = TAG_Short(int(saleList[slot-18]["id"].value))				
+			saleList[slot-18]["Name"] = TAG_String(saleList[slot-18]["Name"].value)				
 
 	villager = TAG_Compound()
 	villager["OnGround"] = TAG_Byte(1)	
@@ -205,7 +209,8 @@ def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, custom
 	villager["Pos"].append(TAG_Float(z + 0.5))
 	villager["definitions"] = TAG_List()
 	villager["definitions"].append(TAG_String(u'+minecraft:villager'))
-	villager["definitions"].append(TAG_String("+" + professionGUI))	
+	if(variantOnly == False):
+		villager["definitions"].append(TAG_String("+" + professionGUI))	
 
 	villager["Rotation"] = TAG_List()
 	villager["Rotation"].append(TAG_Float(0))
@@ -234,30 +239,30 @@ def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, custom
 		attributes["Max"] = TAG_Float(20.0)
 		villager["Attributes"] = TAG_List()
 		villager["Attributes"].append(attributes)
-
-	villager["Offers"] = TAG_Compound()
-	villager["Offers"]["Recipes"] = TAG_List()
-	for i in range(9):
-		if (i in priceList or i in priceListB) and i in saleList:
-			offer = TAG_Compound()
-			if unlimited:
-				offer["uses"] = TAG_Int(-2000000000)
-				offer["maxUses"] = TAG_Int(2000000000)
-			else:
-				offer["uses"] = TAG_Int(0)
-				offer["maxUses"] = TAG_Int(1)
-			offer["rewardExp"] = TAG_Byte(rewardXP)
-			if i in priceList:
-				offer["buyA"] = priceList[i]
-			if i in priceListB:
-				if i in priceList:
-					offer["buyB"] = priceListB[i]
+	
+	if(disableTrades == False):
+		villager["Offers"] = TAG_Compound()
+		villager["Offers"]["Recipes"] = TAG_List()
+		for i in range(9):
+			if (i in priceList or i in priceListB) and i in saleList:
+				offer = TAG_Compound()
+				if unlimited:
+					offer["uses"] = TAG_Int(-2000000000)
+					offer["maxUses"] = TAG_Int(2000000000)
 				else:
-					offer["buyA"] = priceListB[i]
-			
-			offer["sell"] = saleList[i]
-			villager["Offers"]["Recipes"].append(offer)
-
+					offer["uses"] = TAG_Int(0)
+					offer["maxUses"] = TAG_Int(1)
+				offer["rewardExp"] = TAG_Byte(rewardXP)
+				if i in priceList:
+					offer["buyA"] = priceList[i]
+				if i in priceListB:
+					if i in priceList:
+						offer["buyB"] = priceListB[i]
+					else:
+						offer["buyA"] = priceListB[i]
+				
+				offer["sell"] = saleList[i]
+				villager["Offers"]["Recipes"].append(offer)
 	if stopTrade:
 		villager["TradeTier"] = TAG_Int(-2000000000)
 	

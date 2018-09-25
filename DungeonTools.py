@@ -121,12 +121,13 @@ def perform(level, box, options):
 	
 	
 def createChest(lootTable, lootSeed, cx, cy, cz):
-	if (lootSeed == 0):
-		lootSeed = random.getrandbits(32)
+	
 	newte = TileEntity.Create("Chest")
 	newte["Items"] = TAG_List()
 	newte["LootTable"] = TAG_String(lootTable)
-	newte["LootTableSeed"] = TAG_Long(lootSeed)
+	if (lootSeed != 0):
+		newte["LootTableSeed"] = TAG_Long(lootSeed)
+		print("no seed")
 	newte["x"] = TAG_Int(cx)
 	newte["y"] = TAG_Int(cy)
 	newte["z"] = TAG_Int(cz)
