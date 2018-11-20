@@ -189,7 +189,7 @@ def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, custom
 		chestData = TAG_Compound()
 		chestData["Count"] = TAG_Byte(0)
 		chestData["Damage"] = TAG_Short(0)
-		chestData["id"] = TAG_Short(0)
+		chestData["Name"] = TAG_Short(0)
 		villager["ChestItems"].append(chestData)	
 	villager["Chested"] = TAG_Byte(0)
 	villager["Color"] = TAG_Byte(0)
@@ -201,6 +201,7 @@ def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, custom
 	villager["Variant"] = TAG_Int(variant)
 	villager["Riches"] = TAG_Int(0)
 	villager["Persistent"] = TAG_Byte(1)
+	villager["identifier"] = TAG_String("minecraft:villager")
 	villager["id"] = TAG_String("Villager")
 	villager["CustomName"] = TAG_String(customName)
 	villager["Pos"] = TAG_List()
@@ -277,5 +278,6 @@ def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, custom
 	
 	chunk = level.getChunk(x / 16, z / 16)
 	chunk.Entities.append(villager)
+	print(villager)
 	chunk.TileEntities.remove(chest)
 	chunk.dirty = True
