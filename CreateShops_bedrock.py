@@ -81,7 +81,8 @@ for key in Professions.keys():
 
 inputs = [(("Trade", "title"),
 		("Custom Name", ("string", "width=250")),
-		("Custom Name Visible", False),	
+		("Inherit Name from Chest (uses above if no name found)", True),			
+		("Custom Name Visible", False),		
 		("Custom Component Groups", ("string", "width=250")),
 		("Reward XP", 1),	
 		("Profession", ProfessionKeys),
@@ -124,6 +125,7 @@ def perform(level, box, options):
 	unlimited = options["Unlimited Trades"]
 	maxHealth = options["Max Health"]	
 	customName = options["Custom Name"]
+	inheritName = options["Inherit Name from Chest (uses above if no name found)"]
 	customNameVisible = options["Custom Name Visible"]
 	componentGroups = options["Custom Component Groups"]
 	
@@ -145,10 +147,10 @@ def perform(level, box, options):
 				professionGUI = professionsLookup[Professions[options["Profession"]]]
 				dontConvert = 0
 			if dontConvert == 0:
-				createShop(level, x, y, z, stopTrade, variant, unlimited, customName, customNameVisible, maxHealth, professionGUI, rewardXP, componentGroups, variantOnly, disableTrades)
+				createShop(level, x, y, z, stopTrade, variant, unlimited, customName, inheritName, customNameVisible, maxHealth, professionGUI, rewardXP, componentGroups, variantOnly, disableTrades)
 			else:
 				print("what?")
-def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, customNameVisible, maxHealth, professionGUI, rewardXP, componentGroups, variantOnly, disableTrades):
+def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, inheritName, customNameVisible, maxHealth, professionGUI, rewardXP, componentGroups, variantOnly, disableTrades):
 	chest = level.tileEntityAt(x, y, z)
 	if chest == None:
 		return
@@ -203,7 +205,7 @@ def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, custom
 	villager["Persistent"] = TAG_Byte(1)
 	villager["identifier"] = TAG_String("minecraft:villager")
 	villager["id"] = TAG_String("Villager")
-	villager["CustomName"] = TAG_String(customName)
+	#villager["CustomName"] = TAG_String(customName)
 	villager["Pos"] = TAG_List()
 	villager["Pos"].append(TAG_Float(x + 0.5))
 	villager["Pos"].append(TAG_Float(y))
@@ -217,11 +219,17 @@ def createShop(level, x, y, z, stopTrade, variant, unlimited, customName, custom
 	villager["Rotation"].append(TAG_Float(0))
 	villager["Rotation"].append(TAG_Float(0))
 	
-	if customNameVisible:
-		villager["CustomName"] = TAG_String(customName)
-		villager["CustomNameVisible"] = TAG_Byte(1)
+	if(inheritName):
+		try:
+			villager["CustomName"] = chest["CustomName"]
+		except:
+			villager["CustomName"] = TAG_String(customName)
 	else:
 		villager["CustomName"] = TAG_String(customName)
+
+	if customNameVisible:
+		villager["CustomNameVisible"] = TAG_Byte(1)
+	else:
 		villager["CustomNameVisible"] = TAG_Byte(0)
 
 	if maxHealth:
